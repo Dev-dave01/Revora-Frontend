@@ -106,4 +106,18 @@ describe('App Components Accessibility', () => {
     expect(screen.getByRole('heading', { level: 1, name: /offering registration/i })).toBeInTheDocument();
     expect(screen.getByText('Upload KYC documents')).toBeInTheDocument();
   });
+
+  it.each(['/', '/startup/dashboard', '/investor/portal', '/settings/notifications'])(
+    'renders the notification bell in the header on %s',
+    (path) => {
+      renderAtPath(path);
+      expect(screen.getByTestId('notification-bell')).toBeInTheDocument();
+    },
+  );
+
+  it('renders the notification preferences route', () => {
+    renderAtPath('/settings/notifications');
+    expect(screen.getByRole('heading', { name: 'Notification settings' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /notification preferences/i, level: 2 })).toBeInTheDocument();
+  });
 });
