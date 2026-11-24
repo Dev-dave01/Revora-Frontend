@@ -2,6 +2,8 @@ import { useState, type MouseEvent } from "react";
 import {
   createBrowserRouter,
   Link,
+  Navigate,
+  NavLink,
   Outlet,
   type RouteObject,
   RouterProvider,
@@ -23,6 +25,7 @@ import NotificationSettingsPage from "./pages/NotificationSettingsPage";
 import { OfferingWizardSummary } from "./pages/OfferingWizardSummary";
 import { ScheduledExportsPage } from "./pages/ScheduledExportsPage";
 import { StartupDashboard } from "./pages/StartupDashboard";
+import { KycWizardPage } from "./pages/KycWizardPage";
 import { GovernanceProposalCreatePage } from "./pages/GovernanceProposalCreatePage";
 import { AdminAlertsInbox } from "./pages/AdminAlertsInbox";
 import { PayoutSchedule } from "./pages/PayoutSchedule";
@@ -43,7 +46,7 @@ const STELLAR_EXPERT_URL = buildContractExplorerUrl();
 function SiteFooter() {
   const { data: contractSummary, isLoading, isError, error, retry } = useContractRead(
     getContractSummary,
-    { retryCount: 2, retryDelay: 1000 },
+    { key: 'contract-summary', retryCount: 2, retryDelay: 1000 },
   );
 
   return (
@@ -111,7 +114,9 @@ export const routes: RouteObject[] = [
       { path: "/settings/notifications", element: <NotificationSettingsPage /> },
 
       // Startup routes
+      { path: "/startup", element: <Navigate to="/startup/dashboard" replace /> },
       { path: "/startup/dashboard", element: <StartupDashboard /> },
+      { path: "/startup/kyc", element: <KycWizardPage /> },
       { path: "/startup/report-revenue", element: <RevenueReportForm /> },
       // Issue #199 – Inline document uploader (Offering Registration wizard)
       { path: "/startup/offering-registration", element: <OfferingRegistrationDemo /> },
@@ -121,6 +126,7 @@ export const routes: RouteObject[] = [
       { path: "/startup/governance/vote-receipt", element: <GovernanceVoteReceiptDemo /> },
 
       // Investor routes
+      { path: "/investor", element: <Navigate to="/investor/portal" replace /> },
       { path: "/investor/portal", element: <InvestorDiscovery /> },
       { path: "/investor/portfolio", element: <InvestorPortfolioSummary /> },
       { path: "/investor/payouts", element: <PayoutSchedule /> },
@@ -128,6 +134,7 @@ export const routes: RouteObject[] = [
       { path: "/investor/ledger", element: <LedgerDemoPage /> },
 
       // Admin routes
+      { path: "/admin", element: <Navigate to="/admin/alerts" replace /> },
       { path: "/admin/alerts", element: <AdminAlertsInbox /> },
       { path: "/admin/scheduled-exports", element: <ScheduledExportsPage /> },
 
@@ -160,9 +167,9 @@ function AppLayout() {
       <header className="site-header">
         <Link to="/" className="site-header__brand">Revora</Link>
         <nav className="site-header__nav" aria-label="Primary">
-          <Link to="/startup/dashboard" className="site-link">Startup</Link>
-          <Link to="/investor/portal" className="site-link">Investor</Link>
-          <Link to="/admin/alerts" className="site-link">Admin</Link>
+          <NavLink to="/startup" className="site-link">Startup</NavLink>
+          <NavLink to="/investor" className="site-link">Investor</NavLink>
+          <NavLink to="/admin" className="site-link">Admin</NavLink>
           <a href={REPO_URL} className="site-link" target="_blank" rel="noopener noreferrer">GitHub</a>
         </nav>
         <NotificationBell />
@@ -196,20 +203,23 @@ function Home() {
             <h2 className="home-section-title">Startup Dashboard</h2>
             <ul className="home-list">
               <li>
-                • <Link to="/startup/dashboard" className="link-styled">Issuer Dashboard</Link>
+                <Link to="/startup/dashboard" className="link-styled">Issuer Dashboard</Link>
               </li>
-              <li>• Configure RevenueShare offerings</li>
+              <li>Configure RevenueShare offerings</li>
               <li>
-                • <Link to="/startup/report-revenue" className="link-styled">Report monthly revenue</Link>
-              </li>
-              <li>
-                • <Link to="/startup/offering-registration" className="link-styled">Register a RevenueShare offering</Link>
+                <Link to="/startup/kyc" className="link-styled">Complete identity verification (KYC)</Link>
               </li>
               <li>
-                • <Link to="/startup/governance/proposals/create" className="link-styled">Create a governance proposal</Link>
+                <Link to="/startup/report-revenue" className="link-styled">Report monthly revenue</Link>
               </li>
               <li>
-                • <Link to="/startup/governance/vote-receipt" className="link-styled">Governance vote receipt</Link>
+                <Link to="/startup/offering-registration" className="link-styled">Register a RevenueShare offering</Link>
+              </li>
+              <li>
+                <Link to="/startup/governance/proposals/create" className="link-styled">Create a governance proposal</Link>
+              </li>
+              <li>
+                <Link to="/startup/governance/vote-receipt" className="link-styled">Governance vote receipt</Link>
               </li>
             </ul>
           </section>
@@ -217,17 +227,21 @@ function Home() {
           <section className="home-section glass-card">
             <h2 className="home-section-title">Investor Portal</h2>
             <ul className="home-list">
-              <li>• <Link to="/investor/portal" className="link-styled">Discover offerings</Link></li>
-              <li>• Invest using USDC on Stellar</li>
-              <li>• <Link to="/investor/portfolio" className="link-styled">View portfolio summary</Link></li>
-              <li>• <Link to="/investor/ledger" className="link-styled">Browse ledger entries</Link></li>
-              <li>• <Link to="/investor/payouts" className="link-styled">View payout schedule</Link></li>
+              <li><Link to="/investor/portal" className="link-styled">Discover offerings</Link></li>
+              <li>Invest using USDC on Stellar</li>
+              <li><Link to="/investor/portfolio" className="link-styled">View portfolio summary</Link></li>
+              <li><Link to="/investor/ledger" className="link-styled">Browse ledger entries</Link></li>
+              <li><Link to="/investor/payouts" className="link-styled">View payout schedule</Link></li>
             </ul>
           </section>
 
           <section className="home-section glass-card">
             <h2 className="home-section-title">Admin &amp; Account</h2>
             <ul className="home-list">
+              <li><Link to="/admin/alerts" className="link-styled">Alerts inbox</Link></li>
+              <li><Link to="/admin/scheduled-exports" className="link-styled">Scheduled exports</Link></li>
+              <li><Link to="/settings/2fa/backup-codes" className="link-styled">2FA backup codes</Link></li>
+              <li><Link to="/recover-2fa" className="link-styled">2FA recovery</Link></li>
               <li>• <Link to="/admin/alerts" className="link-styled">Alerts inbox</Link></li>
               <li>• <Link to="/admin/scheduled-exports" className="link-styled">Scheduled exports</Link></li>
               <li>• <Link to="/settings/notifications" className="link-styled">Notification preferences</Link></li>
